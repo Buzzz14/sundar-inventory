@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import categoriesRoutes from "./routes/categoriesRoutes.js";
+import itemsRoutes from "./routes/itemsRoutes.js";
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 connectDB();
 
 app.use("/api/categories", categoriesRoutes);
+app.use("/api/items", itemsRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

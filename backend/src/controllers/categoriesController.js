@@ -1,4 +1,5 @@
 import Category from "../models/categoryModel.js";
+import Item from "../models/itemModel.js";
 
 export const getCategories = async (req, res) => {
   try {
@@ -32,6 +33,16 @@ export const createCategory = async (req, res) => {
 export const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
+    const { name } = req.body;
+
+    if (name) {
+      const categoryExists = await Category.findOne({ name, _id: { $ne: id } });
+      if (categoryExists) {
+        return res
+          .status(400)
+          .json({ message: "Category with this name already exists" });
+      }
+    }
 
     const updatedCategory = await Category.findByIdAndUpdate(
       id,
@@ -43,7 +54,7 @@ export const updateCategory = async (req, res) => {
       return res.status(404).json({ message: "Category not found" });
     }
 
-    res.json(updatedCategory);
+    res.json({ message: "Category updated successfully" });
   } catch (error) {
     console.error("Error updating category:", error);
     res.status(500).json({ message: "Server error. Please try again." });
