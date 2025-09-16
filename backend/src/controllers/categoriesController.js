@@ -11,6 +11,23 @@ export const getCategories = async (req, res) => {
   }
 };
 
+export const getCategoryItems = async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    const category = await Category.findOne({ slug });
+    if (!category) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
+    const items = await Item.find({ category: category._id });
+    res.json(items);
+  } catch (error) {
+    console.error("Error fetching category items:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 export const createCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
@@ -32,11 +49,14 @@ export const createCategory = async (req, res) => {
 
 export const updateCategory = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { slug } = req.params;
     const { name } = req.body;
 
     if (name) {
-      const categoryExists = await Category.findOne({ name, _id: { $ne: id } });
+      const categoryExists = await Category.findOne({
+        name,
+        slug: { $ne: slug },
+      });
       if (categoryExists) {
         return res
           .status(400)
@@ -44,8 +64,8 @@ export const updateCategory = async (req, res) => {
       }
     }
 
-    const updatedCategory = await Category.findByIdAndUpdate(
-      id,
+    const updatedCategory = await Category.findOneAndUpdate(
+      { slug },
       { $set: req.body },
       { new: true, runValidators: true }
     );
@@ -63,14 +83,22 @@ export const updateCategory = async (req, res) => {
 
 export const deleteCategory = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { slug } = req.params;
 
-    const category = await Category.findById(id);
+    const category = await Category.findOne({ slug });
 
     if (!category) {
       return res.status(404).json({
         message: "Category not found",
       });
+    }
+
+    const item = await Item.find({ category: category._id });
+
+    if (item.length > 0) {
+      return res
+        .status(400)
+        .json({ message: "Cannot delete category with associated items." });
     }
 
     await category.deleteOne();

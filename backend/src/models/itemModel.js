@@ -1,8 +1,10 @@
 import mongoose from "mongoose";
+import slugify from "slugify";
 
 const itemSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
+    slug: { type: String, unique: true, lowercase: true },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
@@ -32,5 +34,22 @@ const itemSchema = new mongoose.Schema(
   },
   { timestamps: true, versionKey: false }
 );
+
+// Generate slug from name before saving
+itemSchema.pre("save", function (next) {
+  if (this.isModified("name")) {
+    this.slug = slugify(this.name, { lower: true, strict: true });
+  }
+  next();
+});
+
+// Pre-update middleware for slug
+itemSchema.pre("findOneAndUpdate", function (next) {
+  const update = this.getUpdate();
+  if (update.name) {
+    update.slug = slugify(update.name, { lower: true, strict: true });
+  }
+  next();
+});
 
 export default mongoose.model("Item", itemSchema);

@@ -10,10 +10,10 @@ export const getItems = async (req, res) => {
   }
 };
 
-export const getItemById = async (req, res) => {
+export const getItemBySlug = async (req, res) => {
   try {
-    const { id } = req.params;
-    const item = await Item.findById(id).populate("category", "name");
+    const { slug } = req.params;
+    const item = await Item.findOne({ slug }).populate("category", "name");
 
     if (!item) return res.status(404).json({ message: "Item not found" });
 
@@ -36,7 +36,6 @@ export const createItem = async (req, res) => {
       max_profit_percent,
       stock,
       reorder_level,
-      photos,
     } = req.body;
 
     // Validate profit percentages
@@ -48,6 +47,9 @@ export const createItem = async (req, res) => {
 
     const sale_price_min = cost_price * (1 + min_profit_percent / 100);
     const sale_price_max = cost_price * (1 + max_profit_percent / 100);
+
+    // Collect uploaded Cloudinary URLs
+    const photos = req.files.map((file) => file.path);
 
     const item = new Item({
       name,
@@ -74,7 +76,7 @@ export const createItem = async (req, res) => {
 
 export const updateItem = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { slug } = req.params;
     const {
       name,
       category,
@@ -85,10 +87,10 @@ export const updateItem = async (req, res) => {
       max_profit_percent,
       stock,
       reorder_level,
-      photos,
+      photos = [],
     } = req.body;
 
-    const item = await Item.findById(id);
+    const item = await Item.findOne({ slug });
     if (!item) {
       return res.status(404).json({ message: "Item not found" });
     }
@@ -105,6 +107,11 @@ export const updateItem = async (req, res) => {
     if (stock != null) item.stock = stock;
     if (reorder_level != null) item.reorder_level = reorder_level;
     if (photos) item.photos = photos;
+
+    // Add new photos if uploaded
+    if (req.files && req.files.length > 0) {
+      item.photos = [...photos, ...(req.files.map((file) => file.path) || [])];
+    }
 
     // Validate profit percentages
     if (max_profit_percent < min_profit_percent) {
@@ -131,9 +138,9 @@ export const updateItem = async (req, res) => {
 
 export const deleteItem = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { slug } = req.params;
 
-    const item = await Item.findById(id);
+    const item = await Item.findOne({ slug });
     if (!item) return res.status(404).json({ message: "Item not found" });
 
     await item.deleteOne();

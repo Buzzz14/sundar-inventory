@@ -1,7 +1,8 @@
 import express from "express";
+import upload from "../config/multer.js";
 import {
   getItems,
-  getItemById,
+  getItemBySlug,
   createItem,
   updateItem,
   deleteItem,
@@ -10,9 +11,9 @@ import {
 const router = express.Router();
 
 router.get("/", getItems);
-router.get("/:id", getItemById);
-router.post("/", createItem);
-router.patch("/:id", updateItem);
-router.delete("/:id", deleteItem);
+router.post("/", upload.array("photos", 5), createItem);
+router.get("/:slug", getItemBySlug);
+router.patch("/:slug", updateItem);
+router.delete("/:slug", deleteItem);
 
 export default router;
