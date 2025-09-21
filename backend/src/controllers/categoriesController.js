@@ -50,7 +50,7 @@ export const createCategory = async (req, res) => {
 export const updateCategory = async (req, res) => {
   try {
     const { slug } = req.params;
-    const { name } = req.body;
+    const { name, description } = req.body;
 
     if (name) {
       const categoryExists = await Category.findOne({
@@ -64,9 +64,18 @@ export const updateCategory = async (req, res) => {
       }
     }
 
+    const updateData = { name, description };
+    
+    if (name) {
+      const slugify = (await import('slugify')).default;
+      updateData.slug = slugify(name, { lower: true, strict: true });
+    }
+
+    console.log('Updating category with data:', updateData);
+
     const updatedCategory = await Category.findOneAndUpdate(
       { slug },
-      { $set: req.body },
+      { $set: updateData },
       { new: true, runValidators: true }
     );
 
@@ -74,7 +83,8 @@ export const updateCategory = async (req, res) => {
       return res.status(404).json({ message: "Category not found" });
     }
 
-    res.json({ message: "Category updated successfully" });
+    console.log('Updated category:', updatedCategory);
+    res.json(updatedCategory);
   } catch (error) {
     console.error("Error updating category:", error);
     res.status(500).json({ message: "Server error. Please try again." });

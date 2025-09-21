@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { toast } from "sonner";
 import { useGetCategoriesQuery } from "@/redux/features/categories/categoriesApi";
-import ItemFormModal from "../dialogs/AddItemDialog";
-import DeleteDialog from "../dialogs/DeleteItemDialog";
+import AddItemDialog from "../dialogs/AddItemDialog";
+import DeleteDialog from "../dialogs/DeleteDialog";
 
-const ItemsList = () => {
+const ItemList = () => {
   const { data: items, isLoading, error } = useGetItemsQuery();
   const [deleteItem] = useDeleteItemMutation();
   const [modalOpen, setModalOpen] = useState(false);
@@ -142,7 +142,7 @@ const ItemsList = () => {
         </tbody>
       </Table>
 
-      <ItemFormModal
+      <AddItemDialog
         open={modalOpen}
         setOpen={setModalOpen}
         editItemSlug={editItemSlug}
@@ -160,4 +160,4 @@ const ItemsList = () => {
   );
 };
 
-export default ItemsList;
+export default ItemList;

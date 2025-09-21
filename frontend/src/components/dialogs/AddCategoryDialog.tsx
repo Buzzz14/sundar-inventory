@@ -14,7 +14,7 @@ interface AddCategoryDialogProps {
   setNewCatDesc: (desc: string) => void;
   addCategory: ReturnType<typeof useAddCategoryMutation>[0];
   addingCategory: boolean;
-  setValue: UseFormSetValue<ItemFormValues>;
+  setValue?: UseFormSetValue<ItemFormValues>;
 }
 
 const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({
@@ -42,7 +42,7 @@ const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({
                   name: newCatName.trim(),
                   description: newCatDesc || undefined,
                 }).unwrap();
-                setValue("category", created._id as unknown as string, {
+                setValue?.("category", created._id as unknown as string, {
                   shouldDirty: true,
                   shouldValidate: true,
                 });

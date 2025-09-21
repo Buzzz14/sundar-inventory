@@ -39,8 +39,8 @@ export const createItem = async (req, res) => {
       reorder_level,
     } = req.body;
 
-    // Prevent duplicate slug (same name)
     const slugCandidate = slugify(String(name || ""), { lower: true, strict: true });
+    
     if (slugCandidate) {
       const existing = await Item.findOne({ slug: slugCandidate });
       if (existing) {
@@ -48,7 +48,6 @@ export const createItem = async (req, res) => {
       }
     }
 
-    // Validate profit percentages
     if (max_profit_percent < min_profit_percent) {
       return res.status(400).json({
         message: "Max profit percent cannot be less than min profit percent",
@@ -58,7 +57,6 @@ export const createItem = async (req, res) => {
     const sale_price_min = cost_price * (1 + min_profit_percent / 100);
     const sale_price_max = cost_price * (1 + max_profit_percent / 100);
 
-    // Collect uploaded Cloudinary URLs (handle no files case)
     const photos = (req.files || []).map((file) => file.path);
 
     const item = new Item({
@@ -91,10 +89,8 @@ export const updateItem = async (req, res) => {
   try {
     const { slug } = req.params;
     
-    // Handle both FormData and regular JSON
     let bodyData = req.body;
     if (req.body && typeof req.body === 'object' && !Array.isArray(req.body)) {
-      // Convert FormData fields to appropriate types
       bodyData = {
         name: req.body.name,
         category: req.body.category,
@@ -138,10 +134,8 @@ export const updateItem = async (req, res) => {
       item.max_profit_percent = max_profit_percent;
     if (stock != null) item.stock = stock;
     if (reorder_level != null) item.reorder_level = reorder_level;
-    // Handle photos - combine existing (if any) with new uploads
     let finalPhotos = [];
     
-    // Add remaining existing photos (from frontend filtering)
     if (req.body.existingPhotos) {
       const existingPhotos = Array.isArray(req.body.existingPhotos) 
         ? req.body.existingPhotos 
@@ -149,27 +143,22 @@ export const updateItem = async (req, res) => {
       finalPhotos = [...existingPhotos];
     }
     
-    // Add newly uploaded photos
     if (req.files && req.files.length > 0) {
       const newPhotos = req.files.map((file) => file.path);
       finalPhotos = [...finalPhotos, ...newPhotos];
     }
     
-    // If no new uploads and no existing photos specified, keep current photos
     if (finalPhotos.length === 0 && (!req.files || req.files.length === 0)) {
-      // Keep current photos unchanged
     } else {
       item.photos = finalPhotos;
     }
 
-    // Validate profit percentages
     if (max_profit_percent < min_profit_percent) {
       return res.status(400).json({
         message: "Max profit percent cannot be less than min profit percent",
       });
     }
 
-    // Recalculate sale prices
     if (item.cost_price != null) {
       item.sale_price_min =
         item.cost_price * (1 + item.min_profit_percent / 100);

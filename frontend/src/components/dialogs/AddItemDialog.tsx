@@ -68,9 +68,9 @@ const ItemFormModal: React.FC<ItemFormModalProps> = ({
   } = useGetCategoriesQuery();
   const [addCategory, { isLoading: addingCategory }] = useAddCategoryMutation();
 
-  const [addCatOpen, setAddCatOpen] = React.useState(false);
-  const [newCatName, setNewCatName] = React.useState("");
-  const [newCatDesc, setNewCatDesc] = React.useState("");
+  const [addCatOpen, setAddCatOpen] = useState(false);
+  const [newCatName, setNewCatName] = useState("");
+  const [newCatDesc, setNewCatDesc] = useState("");
 
   useEffect(() => {
     if (editItemSlug && items) {

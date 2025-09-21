@@ -10,7 +10,6 @@ const categorySchema = new mongoose.Schema(
   { timestamps: true, versionKey: false }
 );
 
-// Generate slug from name before saving
 categorySchema.pre("save", function (next) {
   if (this.isModified("name")) {
     this.slug = slugify(this.name, { lower: true, strict: true });
@@ -18,11 +17,13 @@ categorySchema.pre("save", function (next) {
   next();
 });
 
-// Pre-update middleware for slug
 categorySchema.pre("findOneAndUpdate", function (next) {
   const update = this.getUpdate();
-  if (update.name) {
-    update.slug = slugify(update.name, { lower: true, strict: true });
+  if (update && update.name) {
+    this.setUpdate({
+      ...update,
+      slug: slugify(update.name, { lower: true, strict: true })
+    });
   }
   next();
 });

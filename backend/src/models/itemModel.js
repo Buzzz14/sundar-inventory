@@ -36,7 +36,6 @@ const itemSchema = new mongoose.Schema(
   { timestamps: true, versionKey: false }
 );
 
-// Generate slug from name before saving
 itemSchema.pre("save", function (next) {
   if (this.isModified("name")) {
     this.slug = slugify(this.name, { lower: true, strict: true });
@@ -44,7 +43,6 @@ itemSchema.pre("save", function (next) {
   next();
 });
 
-// Pre-update middleware for slug
 itemSchema.pre("findOneAndUpdate", function (next) {
   const update = this.getUpdate();
   if (update.name) {

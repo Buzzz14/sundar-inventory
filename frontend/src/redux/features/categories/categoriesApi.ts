@@ -25,12 +25,25 @@ export const categoryApi = api.injectEndpoints({
     }),
 
     updateCategory: builder.mutation<Category, {slug:string; body: Partial<Category>}>( {
-      query: ({ slug, ...body }) => ({
+      query: ({ slug, body }) => ({
         url: `/categories/${slug}`,
         method: "PUT",
         body,
       }),
       invalidatesTags: ["Category"],
+      onQueryStarted: async ({ slug }, { dispatch, queryFulfilled }) => {
+        try {
+          const { data: updatedCategory } = await queryFulfilled;
+          dispatch(
+            categoryApi.util.updateQueryData('getCategories', undefined, (draft) => {
+              const index = draft.findIndex(category => category.slug === slug);
+              if (index !== -1) {
+                draft[index] = updatedCategory;
+              }
+            })
+          );
+        } catch {}
+      },
     }),
 
     deleteCategory: builder.mutation<{ message: string }, string>({
