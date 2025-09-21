@@ -1,4 +1,5 @@
 import Item from "../models/itemModel.js";
+import slugify from "slugify";
 
 export const getItems = async (req, res) => {
   try {
@@ -38,6 +39,15 @@ export const createItem = async (req, res) => {
       reorder_level,
     } = req.body;
 
+    // Prevent duplicate slug (same name)
+    const slugCandidate = slugify(String(name || ""), { lower: true, strict: true });
+    if (slugCandidate) {
+      const existing = await Item.findOne({ slug: slugCandidate });
+      if (existing) {
+        return res.status(409).json({ message: "An item with this name already exists" });
+      }
+    }
+
     // Validate profit percentages
     if (max_profit_percent < min_profit_percent) {
       return res.status(400).json({
@@ -48,8 +58,8 @@ export const createItem = async (req, res) => {
     const sale_price_min = cost_price * (1 + min_profit_percent / 100);
     const sale_price_max = cost_price * (1 + max_profit_percent / 100);
 
-    // Collect uploaded Cloudinary URLs
-    const photos = req.files.map((file) => file.path);
+    // Collect uploaded Cloudinary URLs (handle no files case)
+    const photos = (req.files || []).map((file) => file.path);
 
     const item = new Item({
       name,
@@ -70,6 +80,9 @@ export const createItem = async (req, res) => {
     res.status(201).json({ message: "Item created successfully" });
   } catch (error) {
     console.error("Error creating item:", error);
+    if (error && error.code === 11000 && error.keyPattern && error.keyPattern.slug) {
+      return res.status(409).json({ message: "An item with this name already exists" });
+    }
     res.status(500).json({ message: "Server error. Please try again." });
   }
 };
@@ -77,6 +90,25 @@ export const createItem = async (req, res) => {
 export const updateItem = async (req, res) => {
   try {
     const { slug } = req.params;
+    
+    // Handle both FormData and regular JSON
+    let bodyData = req.body;
+    if (req.body && typeof req.body === 'object' && !Array.isArray(req.body)) {
+      // Convert FormData fields to appropriate types
+      bodyData = {
+        name: req.body.name,
+        category: req.body.category,
+        company: req.body.company,
+        description: req.body.description,
+        cost_price: req.body.cost_price ? parseFloat(req.body.cost_price) : undefined,
+        min_profit_percent: req.body.min_profit_percent ? parseFloat(req.body.min_profit_percent) : undefined,
+        max_profit_percent: req.body.max_profit_percent ? parseFloat(req.body.max_profit_percent) : undefined,
+        stock: req.body.stock ? parseFloat(req.body.stock) : undefined,
+        reorder_level: req.body.reorder_level ? parseFloat(req.body.reorder_level) : undefined,
+        photos: req.body.photos ? (Array.isArray(req.body.photos) ? req.body.photos : [req.body.photos]) : [],
+      };
+    }
+    
     const {
       name,
       category,
@@ -88,7 +120,7 @@ export const updateItem = async (req, res) => {
       stock,
       reorder_level,
       photos = [],
-    } = req.body;
+    } = bodyData;
 
     const item = await Item.findOne({ slug });
     if (!item) {
@@ -106,11 +138,28 @@ export const updateItem = async (req, res) => {
       item.max_profit_percent = max_profit_percent;
     if (stock != null) item.stock = stock;
     if (reorder_level != null) item.reorder_level = reorder_level;
-    if (photos) item.photos = photos;
-
-    // Add new photos if uploaded
+    // Handle photos - combine existing (if any) with new uploads
+    let finalPhotos = [];
+    
+    // Add remaining existing photos (from frontend filtering)
+    if (req.body.existingPhotos) {
+      const existingPhotos = Array.isArray(req.body.existingPhotos) 
+        ? req.body.existingPhotos 
+        : [req.body.existingPhotos];
+      finalPhotos = [...existingPhotos];
+    }
+    
+    // Add newly uploaded photos
     if (req.files && req.files.length > 0) {
-      item.photos = [...photos, ...(req.files.map((file) => file.path) || [])];
+      const newPhotos = req.files.map((file) => file.path);
+      finalPhotos = [...finalPhotos, ...newPhotos];
+    }
+    
+    // If no new uploads and no existing photos specified, keep current photos
+    if (finalPhotos.length === 0 && (!req.files || req.files.length === 0)) {
+      // Keep current photos unchanged
+    } else {
+      item.photos = finalPhotos;
     }
 
     // Validate profit percentages

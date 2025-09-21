@@ -13,7 +13,7 @@ const router = express.Router();
 router.get("/", getItems);
 router.post("/", upload.array("photos", 5), createItem);
 router.get("/:slug", getItemBySlug);
-router.patch("/:slug", updateItem);
+router.patch("/:slug", upload.array("photos", 5), updateItem);
 router.delete("/:slug", deleteItem);
 
 export default router;
