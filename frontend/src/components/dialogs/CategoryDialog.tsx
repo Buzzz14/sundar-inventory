@@ -5,7 +5,7 @@ import type { useAddCategoryMutation } from "@/redux/features/categories/categor
 import type { ItemFormValues } from "@/schemas/itemSchema";
 import type { UseFormSetValue } from "react-hook-form";
 
-interface AddCategoryDialogProps {
+interface CategoryDialogProps {
   addCatOpen: boolean;
   setAddCatOpen: (open: boolean) => void;
   newCatName: string;
@@ -17,7 +17,7 @@ interface AddCategoryDialogProps {
   setValue?: UseFormSetValue<ItemFormValues>;
 }
 
-const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({
+const CategoryDialog: React.FC<CategoryDialogProps> = ({
   addCatOpen,
   setAddCatOpen,
   newCatName,
@@ -28,33 +28,38 @@ const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({
   addingCategory,
   setValue,
 }) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!newCatName.trim()) return;
+
+    try {
+      const created = await addCategory({
+        name: newCatName.trim(),
+        description: newCatDesc || undefined,
+      }).unwrap();
+
+      setValue?.("category", created._id as unknown as string, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+
+      setAddCatOpen(false);
+      setNewCatName("");
+      setNewCatDesc("");
+      toast.success("Category added successfully");
+    } catch {
+      toast.error("Failed to add category");
+    }
+  };
+
   return (
     <>
       <Dialog open={addCatOpen} onOpenChange={setAddCatOpen}>
         <DialogContent>
-          <form
-            className="flex flex-col gap-2"
-            onSubmit={async (e) => {
-              e.preventDefault();
-              if (!newCatName.trim()) return;
-              try {
-                const created = await addCategory({
-                  name: newCatName.trim(),
-                  description: newCatDesc || undefined,
-                }).unwrap();
-                setValue?.("category", created._id as unknown as string, {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                });
-                setAddCatOpen(false);
-                setNewCatName("");
-                setNewCatDesc("");
-              } catch {
-                toast.error("Failed to add category");
-              }
-            }}
-          >
+          <form className="flex flex-col gap-2" onSubmit={onSubmit}>
             <h3 className="text-base font-semibold">Add Category</h3>
+
             <label htmlFor="newCatName" className="text-sm font-medium">
               Name
             </label>
@@ -63,6 +68,7 @@ const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({
               value={newCatName}
               onChange={(e) => setNewCatName(e.target.value)}
             />
+
             <label htmlFor="newCatDesc" className="text-sm font-medium">
               Description
             </label>
@@ -71,6 +77,7 @@ const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({
               value={newCatDesc}
               onChange={(e) => setNewCatDesc(e.target.value)}
             />
+
             <div className="flex justify-end gap-2 mt-2">
               <Button
                 type="button"
@@ -79,6 +86,7 @@ const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({
               >
                 Cancel
               </Button>
+
               <Button type="submit" disabled={addingCategory}>
                 Add
               </Button>
@@ -90,4 +98,4 @@ const AddCategoryDialog: React.FC<AddCategoryDialogProps> = ({
   );
 };
 
-export default AddCategoryDialog;
+export default CategoryDialog;

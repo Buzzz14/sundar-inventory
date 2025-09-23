@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import categoriesRoutes from "./routes/categoriesRoutes.js";
 import itemsRoutes from "./routes/itemsRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ connectDB();
 
 app.use("/api/categories", categoriesRoutes);
 app.use("/api/items", itemsRoutes);
+app.use("/api/auth", authRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

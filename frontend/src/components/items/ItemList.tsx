@@ -7,13 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { toast } from "sonner";
 import { useGetCategoriesQuery } from "@/redux/features/categories/categoriesApi";
-import AddItemDialog from "../dialogs/AddItemDialog";
+import ItemDialog from "../dialogs/ItemDialog";
 import DeleteDialog from "../dialogs/DeleteDialog";
 
 const ItemList = () => {
   const { data: items, isLoading, error } = useGetItemsQuery();
   const [deleteItem] = useDeleteItemMutation();
-  const [modalOpen, setModalOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [editItemSlug, setEditItemSlug] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [slugToDelete, setSlugToDelete] = useState<string | null>(null);
@@ -44,7 +44,7 @@ const ItemList = () => {
 
   const handleEdit = (slug: string) => {
     setEditItemSlug(slug);
-    setModalOpen(true);
+    setDialogOpen(true);
   };
 
   const filteredItems = useMemo(() => {
@@ -62,7 +62,7 @@ const ItemList = () => {
         <Button
           onClick={() => {
             setEditItemSlug(null);
-            setModalOpen(true);
+            setDialogOpen(true);
           }}
         >
           Add New Item
@@ -142,9 +142,9 @@ const ItemList = () => {
         </tbody>
       </Table>
 
-      <AddItemDialog
-        open={modalOpen}
-        setOpen={setModalOpen}
+      <ItemDialog
+        open={dialogOpen}
+        setOpen={setDialogOpen}
         editItemSlug={editItemSlug}
         setEditItemSlug={setEditItemSlug}
       />

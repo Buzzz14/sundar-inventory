@@ -12,16 +12,16 @@ import { useGetCategoriesQuery } from "@/redux/features/categories/categoriesApi
 import { useAddCategoryMutation } from "@/redux/features/categories/categoriesApi";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import AddCategoryDialog from "./AddCategoryDialog";
+import CategoryDialog from "./CategoryDialog";
 
-interface ItemFormModalProps {
+interface ItemDialogProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   editItemSlug: string | null;
   setEditItemSlug: (slug: string | null) => void;
 }
 
-const ItemFormModal: React.FC<ItemFormModalProps> = ({
+const ItemDialog: React.FC<ItemDialogProps> = ({
   open,
   setOpen,
   editItemSlug,
@@ -137,12 +137,14 @@ const ItemFormModal: React.FC<ItemFormModalProps> = ({
         await addItem(formData).unwrap();
         toast.success("Item added");
       }
+
       reset(emptyValues);
       setOpen(false);
       setEditItemSlug(null);
       photosRef.current = [];
       setSelectedPreviews([]);
       setExistingPhotos([]);
+      
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (err: unknown) {
       const message =
@@ -383,7 +385,7 @@ const ItemFormModal: React.FC<ItemFormModalProps> = ({
         </DialogContent>
       </Dialog>
 
-      <AddCategoryDialog
+      <CategoryDialog
         addCatOpen={addCatOpen}
         setAddCatOpen={setAddCatOpen}
         newCatName={newCatName}
@@ -398,4 +400,4 @@ const ItemFormModal: React.FC<ItemFormModalProps> = ({
   );
 };
 
-export default ItemFormModal;
+export default ItemDialog;

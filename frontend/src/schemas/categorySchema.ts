@@ -6,4 +6,4 @@ export const categorySchema = z.object({
   slug: z.string().optional(),
 });
 
-export type CategoryFormData = z.infer<typeof categorySchema>;
+export type CategoryFormValues = z.infer<typeof categorySchema>;

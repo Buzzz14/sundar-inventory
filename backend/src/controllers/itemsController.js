@@ -90,6 +90,7 @@ export const updateItem = async (req, res) => {
     const { slug } = req.params;
     
     let bodyData = req.body;
+    
     if (req.body && typeof req.body === 'object' && !Array.isArray(req.body)) {
       bodyData = {
         name: req.body.name,

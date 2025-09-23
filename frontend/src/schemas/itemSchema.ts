@@ -22,7 +22,7 @@ export const itemSchema = z.object({
     .number({ message: "Reorder level must be a number" })
     .min(0, "Reorder level cannot be negative")
     .optional(),
-  photos: z.array(z.string().url()).optional(),
+  photos: z.array(z.url()).optional(),
 });
 
 export type ItemFormValues = z.infer<typeof itemSchema>;

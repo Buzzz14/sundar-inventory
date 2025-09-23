@@ -8,6 +8,7 @@ import { PanelLeftIcon } from "lucide-react"
 import { useIsMobile } from "@/hooks/useMobile"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { useNavigate } from "react-router-dom"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -344,13 +345,25 @@ function SidebarHeader({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
+  const navigate = useNavigate()
   return (
     <div
       data-slot="sidebar-footer"
       data-sidebar="footer"
       className={cn("flex flex-col gap-2 p-2", className)}
       {...props}
-    />
+    >
+      <Button
+        variant="outline"
+        onClick={() => {
+          localStorage.removeItem("token")
+          localStorage.removeItem("user")
+          navigate("/login", { replace: true })
+        }}
+      >
+        Log out
+      </Button>
+    </div>
   )
 }
 

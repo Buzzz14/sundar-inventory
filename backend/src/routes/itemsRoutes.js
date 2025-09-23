@@ -7,13 +7,14 @@ import {
   updateItem,
   deleteItem,
 } from "../controllers/itemsController.js";
+import { requireAuth, requireRole } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 router.get("/", getItems);
-router.post("/", upload.array("photos", 5), createItem);
+router.post("/", requireAuth, requireRole(["admin"]), upload.array("photos", 5), createItem);
 router.get("/:slug", getItemBySlug);
-router.patch("/:slug", upload.array("photos", 5), updateItem);
-router.delete("/:slug", deleteItem);
+router.patch("/:slug", requireAuth, requireRole(["admin"]), upload.array("photos", 5), updateItem);
+router.delete("/:slug", requireAuth, requireRole(["admin"]), deleteItem);
 
 export default router;
