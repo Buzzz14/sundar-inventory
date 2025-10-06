@@ -1,6 +1,6 @@
 import { api } from "../api";
+import type { User } from "@/types";
 
-type User = { id: string; email: string; name?: string; role: string };
 type AuthResponse = { token: string; user: User };
 
 export const authApi = api.injectEndpoints({
@@ -14,9 +14,32 @@ export const authApi = api.injectEndpoints({
     me: build.query<{ user: User }, void>({
       query: () => ({ url: "/auth/me" }),
     }),
+    getAllUsers: build.query<{ users: User[] }, void>({
+      query: () => ({ url: "/auth/users" }),
+    }),
+    updateUserRole: build.mutation<{ message: string; user: User }, { userId: string; role: string }>({
+      query: ({ userId, role }) => ({ 
+        url: `/auth/users/${userId}/role`, 
+        method: "PATCH", 
+        body: { role } 
+      }),
+    }),
+    deleteUser: build.mutation<{ message: string }, { userId: string }>({
+      query: ({ userId }) => ({ 
+        url: `/auth/users/${userId}`, 
+        method: "DELETE" 
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useMeQuery } = authApi;
+export const { 
+  useLoginMutation, 
+  useRegisterMutation, 
+  useMeQuery, 
+  useGetAllUsersQuery,
+  useUpdateUserRoleMutation,
+  useDeleteUserMutation
+} = authApi;
 
 

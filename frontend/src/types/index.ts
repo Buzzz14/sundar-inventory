@@ -21,3 +21,13 @@ export interface Item {
   reorder_level: number;
   photos: string[];
 }
+
+export interface User {
+  _id: string;
+  email: string;
+  name?: string;
+  role: "admin" | "user" | "superadmin";
+  createdAt?: string;
+}
+
+export type UserRole = "admin" | "user" | "superadmin";

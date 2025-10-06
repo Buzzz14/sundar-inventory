@@ -13,6 +13,8 @@ interface DeleteDialogProps {
   slugToDelete: string | null;
   setSlugToDelete: (slug: string | null) => void;
   confirmDelete: () => Promise<void>;
+  title?: string;
+  description?: string;
 }
 
 const DeleteDialog: React.FC<DeleteDialogProps> = ({
@@ -20,6 +22,8 @@ const DeleteDialog: React.FC<DeleteDialogProps> = ({
   setConfirmOpen,
   setSlugToDelete,
   confirmDelete,
+  title = "Delete this item?",
+  description = "This action cannot be undone.",
 }) => {
   return (
     <>
@@ -32,9 +36,9 @@ const DeleteDialog: React.FC<DeleteDialogProps> = ({
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete this item?</DialogTitle>
+            <DialogTitle>{title}</DialogTitle>
           </DialogHeader>
-          <p>This action cannot be undone.</p>
+          <p>{description}</p>
           <DialogFooter>
             <Button
               variant="outline"

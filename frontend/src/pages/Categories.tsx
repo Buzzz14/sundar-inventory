@@ -1,5 +1,6 @@
 import CategoryList from "@/components/categories/CategoryList";
 import LogoutButton from "@/components/LogoutButton";
+import Navigation from "@/components/Navigation";
 
 const Categories = () => {
   return (
@@ -8,6 +9,7 @@ const Categories = () => {
         <h1 className="text-2xl font-bold">Categories</h1>
         <LogoutButton />
       </div>
+      <Navigation />
       <CategoryList />
     </div>
   );

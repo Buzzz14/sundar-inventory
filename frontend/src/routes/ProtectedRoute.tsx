@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { PropsWithChildren } from "react";
+import { type PropsWithChildren } from "react";
 
 const isAuthenticated = () => {
   if (typeof window === "undefined") return false;
@@ -12,5 +12,3 @@ export default function ProtectedRoute({ children }: PropsWithChildren) {
   }
   return children;
 }
-
-

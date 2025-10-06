@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import {
   useGetItemsQuery,
   useDeleteItemMutation,
+  useGetItemBySlugQuery,
 } from "@/redux/features/items/itemsApi";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableRow, TableCell } from "@/components/ui/table";
@@ -9,17 +10,35 @@ import { toast } from "sonner";
 import { useGetCategoriesQuery } from "@/redux/features/categories/categoriesApi";
 import ItemDialog from "../dialogs/ItemDialog";
 import DeleteDialog from "../dialogs/DeleteDialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "../ui/dialog";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "../ui/carousel";
+import { useUser } from "@/contexts/UserContext";
 
 const ItemList = () => {
   const { data: items, isLoading, error } = useGetItemsQuery();
   const [deleteItem] = useDeleteItemMutation();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [viewImageOpen, setViewImageOpen] = useState(false);
+  const [clickedItemSlug, setClickedItemSlug] = useState<string>("");
   const [editItemSlug, setEditItemSlug] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [slugToDelete, setSlugToDelete] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
 
+  const { data: clickedItem } = useGetItemBySlugQuery(clickedItemSlug);
   const { data: categories } = useGetCategoriesQuery();
+  const { isAdmin } = useUser();
 
   const promptDelete = (slug: string) => {
     setSlugToDelete(slug);
@@ -42,6 +61,11 @@ const ItemList = () => {
     }
   };
 
+  const handleViewImages = (slug: string) => {
+    setClickedItemSlug(slug);
+    setViewImageOpen(true);
+  };
+
   const handleEdit = (slug: string) => {
     setEditItemSlug(slug);
     setDialogOpen(true);
@@ -59,14 +83,16 @@ const ItemList = () => {
   return (
     <div>
       <div className="flex gap-4 mb-4">
-        <Button
-          onClick={() => {
-            setEditItemSlug(null);
-            setDialogOpen(true);
-          }}
-        >
-          Add New Item
-        </Button>
+        {isAdmin && (
+          <Button
+            onClick={() => {
+              setEditItemSlug(null);
+              setDialogOpen(true);
+            }}
+          >
+            Add New Item
+          </Button>
+        )}
 
         <select
           value={selectedCategory}
@@ -93,7 +119,7 @@ const ItemList = () => {
             <TableCell>Max Sale Price</TableCell>
             <TableCell>Stock</TableCell>
             <TableCell>Reorder Level</TableCell>
-            <TableCell>Actions</TableCell>
+            {isAdmin && <TableCell>Actions</TableCell>}
           </TableRow>
         </TableHeader>
 
@@ -106,7 +132,8 @@ const ItemList = () => {
                     <img
                       src={item.photos[0]}
                       alt={item.name}
-                      className="size-12 rounded object-cover border"
+                      onClick={() => handleViewImages(item.slug)}
+                      className="size-12 rounded object-cover border cursor-pointer"
                     />
                   ) : (
                     <div className="size-12 rounded border bg-muted" />
@@ -118,23 +145,25 @@ const ItemList = () => {
                 <TableCell>{item.sale_price_max}</TableCell>
                 <TableCell>{item.stock}</TableCell>
                 <TableCell>{item.reorder_level}</TableCell>
-                <TableCell className="flex gap-2">
-                  <Button size="sm" onClick={() => handleEdit(item.slug)}>
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => promptDelete(item.slug)}
-                  >
-                    Delete
-                  </Button>
-                </TableCell>
+                {isAdmin && (
+                  <TableCell className="flex gap-2">
+                    <Button size="sm" onClick={() => handleEdit(item.slug)}>
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => promptDelete(item.slug)}
+                    >
+                      Delete
+                    </Button>
+                  </TableCell>
+                )}
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={8} className="text-center py-4">
+              <TableCell colSpan={isAdmin ? 8 : 7} className="text-center py-4">
                 No items found.
               </TableCell>
             </TableRow>
@@ -156,6 +185,38 @@ const ItemList = () => {
         setSlugToDelete={setSlugToDelete}
         confirmDelete={confirmDelete}
       />
+
+      <Dialog open={viewImageOpen} onOpenChange={setViewImageOpen}>
+        <DialogContent>
+          <Carousel>
+            <DialogTitle>{clickedItem?.name || "Item Images"}</DialogTitle>
+            <DialogDescription className="mb-4">
+              Browse through the images of this item.
+            </DialogDescription>
+            <CarouselContent>
+              {clickedItem ? (
+                clickedItem?.photos?.map((photo, index) => (
+                  <CarouselItem key={index}>
+                    <img
+                      src={photo}
+                      alt={`${clickedItem?.name} - ${index + 1}`}
+                      className="max-h-[70vh] mx-auto rounded object-contain"
+                    />
+                  </CarouselItem>
+                ))
+              ) : (
+                <p>No images available</p>
+              )}
+            </CarouselContent>
+            {clickedItem && clickedItem?.photos?.length > 1 && (
+              <>
+                <CarouselPrevious />
+                <CarouselNext />
+              </>
+            )}
+          </Carousel>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -11,10 +11,27 @@ import { requireAuth, requireRole } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.get("/", getItems);
-router.post("/", requireAuth, requireRole(["admin"]), upload.array("photos", 5), createItem);
-router.get("/:slug", getItemBySlug);
-router.patch("/:slug", requireAuth, requireRole(["admin"]), upload.array("photos", 5), updateItem);
-router.delete("/:slug", requireAuth, requireRole(["admin"]), deleteItem);
+router.get(
+  "/",
+  requireAuth,
+  requireRole(["admin", "superadmin", "user"]),
+  getItems
+);
+router.post(
+  "/",
+  requireAuth,
+  requireRole(["admin", "superadmin"]),
+  upload.array("photos", 5),
+  createItem
+);
+router.get("/:slug", requireAuth, requireRole(["admin", "superadmin", "user"]), getItemBySlug);
+router.patch(
+  "/:slug",
+  requireAuth,
+  requireRole(["admin", "superadmin"]),
+  upload.array("photos", 5),
+  updateItem
+);
+router.delete("/:slug", requireAuth, requireRole(["admin", "superadmin"]), deleteItem);
 
 export default router;

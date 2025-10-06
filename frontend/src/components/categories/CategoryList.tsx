@@ -17,12 +17,14 @@ import {
   type CategoryFormValues,
 } from "@/schemas/categorySchema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useUser } from "@/contexts/UserContext";
 
 const CategoryList = () => {
   const { data: categories, isLoading, error } = useGetCategoriesQuery();
   const [deleteCategory] = useDeleteCategoryMutation();
   const [updateCategory] = useUpdateCategoryMutation();
   const [addCategory, { isLoading: addingCategory }] = useAddCategoryMutation();
+  const { isAdmin } = useUser();
 
   const [addCatOpen, setAddCatOpen] = useState(false);
   const [editCatOpen, setEditCatOpen] = useState(false);
@@ -123,15 +125,17 @@ const CategoryList = () => {
   return (
     <div>
       <div className="flex gap-4 mb-4">
-        <Button
-          onClick={() => {
-            setNewCatName("");
-            setNewCatDesc("");
-            setAddCatOpen(true);
-          }}
-        >
-          Add New Category
-        </Button>
+        {isAdmin && (
+          <Button
+            onClick={() => {
+              setNewCatName("");
+              setNewCatDesc("");
+              setAddCatOpen(true);
+            }}
+          >
+            Add New Category
+          </Button>
+        )}
       </div>
 
       <Table>
@@ -140,7 +144,7 @@ const CategoryList = () => {
             <TableCell>Name</TableCell>
             <TableCell>Description</TableCell>
             <TableCell>Slug</TableCell>
-            <TableCell>Actions</TableCell>
+            {isAdmin && <TableCell>Actions</TableCell>}
           </TableRow>
         </TableHeader>
 
@@ -151,32 +155,34 @@ const CategoryList = () => {
                 <TableCell>{category.name}</TableCell>
                 <TableCell>{category.description || "-"}</TableCell>
                 <TableCell>{category.slug}</TableCell>
-                <TableCell className="flex gap-2">
-                  <Button
-                    size="sm"
-                    onClick={() =>
-                      handleEdit({
-                        name: category.name,
-                        description: category.description,
-                        slug: category.slug,
-                      })
-                    }
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => promptDelete(category.slug)}
-                  >
-                    Delete
-                  </Button>
-                </TableCell>
+                {isAdmin && (
+                  <TableCell className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        handleEdit({
+                          name: category.name,
+                          description: category.description,
+                          slug: category.slug,
+                        })
+                      }
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => promptDelete(category.slug)}
+                    >
+                      Delete
+                    </Button>
+                  </TableCell>
+                )}
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={4} className="text-center py-4">
+              <TableCell colSpan={isAdmin ? 4 : 3} className="text-center py-4">
                 No categories found.
               </TableCell>
             </TableRow>

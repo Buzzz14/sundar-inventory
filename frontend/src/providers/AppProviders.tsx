@@ -3,6 +3,7 @@ import { Provider } from "react-redux";
 import { store } from "../redux/store";
 import { BrowserRouter } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
+import { UserProvider } from "@/contexts/UserContext";
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -11,7 +12,9 @@ interface AppProvidersProps {
 const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
   return (
     <Provider store={store}>
-      <BrowserRouter>{children}</BrowserRouter>
+      <BrowserRouter>
+        <UserProvider>{children}</UserProvider>
+      </BrowserRouter>
       <Toaster />
     </Provider>
   );
