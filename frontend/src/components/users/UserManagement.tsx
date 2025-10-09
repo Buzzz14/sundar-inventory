@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { useGetAllUsersQuery, useUpdateUserRoleMutation, useDeleteUserMutation } from "@/redux/features/auth/authApi";
+import {
+  useGetAllUsersQuery,
+  useUpdateUserRoleMutation,
+  useDeleteUserMutation,
+} from "@/redux/features/auth/authApi";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableRow, TableCell } from "@/components/ui/table";
 import { toast } from "sonner";
@@ -55,8 +59,6 @@ const UserManagement = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4">User Management</h2>
-      
       <Table>
         <TableHeader>
           <TableRow>
@@ -77,7 +79,9 @@ const UserManagement = () => {
                 <TableCell>
                   <select
                     value={user.role}
-                    onChange={(e) => handleRoleChange(user._id, e.target.value as UserRole)}
+                    onChange={(e) =>
+                      handleRoleChange(user._id, e.target.value as UserRole)
+                    }
                     className="border rounded px-2 py-1"
                   >
                     <option value="user">User</option>
@@ -86,7 +90,9 @@ const UserManagement = () => {
                   </select>
                 </TableCell>
                 <TableCell>
-                  {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "N/A"}
+                  {user.createdAt
+                    ? new Date(user.createdAt).toLocaleDateString()
+                    : "N/A"}
                 </TableCell>
                 <TableCell>
                   <Button

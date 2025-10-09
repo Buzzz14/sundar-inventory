@@ -17,6 +17,12 @@ router.get(
   requireRole(["admin", "superadmin", "user"]),
   getItems
 );
+router.get(
+  "/:slug",
+  requireAuth,
+  requireRole(["admin", "superadmin", "user"]),
+  getItemBySlug
+);
 router.post(
   "/",
   requireAuth,
@@ -24,7 +30,6 @@ router.post(
   upload.array("photos", 5),
   createItem
 );
-router.get("/:slug", requireAuth, requireRole(["admin", "superadmin", "user"]), getItemBySlug);
 router.patch(
   "/:slug",
   requireAuth,
@@ -32,6 +37,6 @@ router.patch(
   upload.array("photos", 5),
   updateItem
 );
-router.delete("/:slug", requireAuth, requireRole(["admin", "superadmin"]), deleteItem);
+router.delete("/:slug", requireAuth, requireRole(["superadmin"]), deleteItem);
 
 export default router;

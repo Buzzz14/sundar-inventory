@@ -16,17 +16,17 @@ router.get(
   requireRole(["admin", "superadmin", "user"]),
   getCategories
 );
-router.post(
-  "/",
-  requireAuth,
-  requireRole(["admin", "superadmin"]),
-  createCategory
-);
 router.get(
   "/:slug/items",
   requireAuth,
   requireRole(["admin", "superadmin", "user"]),
   getCategoryItems
+);
+router.post(
+  "/",
+  requireAuth,
+  requireRole(["admin", "superadmin"]),
+  createCategory
 );
 router.put(
   "/:slug",
@@ -37,7 +37,7 @@ router.put(
 router.delete(
   "/:slug",
   requireAuth,
-  requireRole(["admin", "superadmin"]),
+  requireRole(["superadmin"]),
   deleteCategory
 );
 

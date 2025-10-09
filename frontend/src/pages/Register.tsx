@@ -20,6 +20,8 @@ export default function Register() {
       const res = await registerUser({ email, password, name }).unwrap();
       localStorage.setItem("token", res.token);
       localStorage.setItem("user", JSON.stringify(res.user));
+      // Notify app about token change so UserProvider reacts immediately
+      window.dispatchEvent(new Event("auth:token-changed"));
       navigate("/items", { replace: true });
     } catch (err: any) {
       setError(err?.data?.message || "Registration failed");

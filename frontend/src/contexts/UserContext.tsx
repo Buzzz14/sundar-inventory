@@ -1,4 +1,4 @@
-import React, { createContext, useContext, type ReactNode } from "react";
+import React, { createContext, useContext, type ReactNode, useEffect, useState } from "react";
 import { useMeQuery } from "@/redux/features/auth/authApi";
 import { type User, type UserRole } from "@/types";
 
@@ -19,10 +19,34 @@ interface UserProviderProps {
 }
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-  const { data, isLoading, error } = useMeQuery();
+  const [token, setToken] = useState<string | undefined>(
+    typeof window !== "undefined" ? localStorage.getItem("token") || undefined : undefined
+  );
+
+  // React to token changes via storage events and custom dispatch
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "token") {
+        setToken(e.newValue || undefined);
+      }
+    };
+    const handleAuthEvent = () => {
+      const current = typeof window !== "undefined" ? localStorage.getItem("token") || undefined : undefined;
+      setToken(current);
+    };
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("auth:token-changed", handleAuthEvent as EventListener);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("auth:token-changed", handleAuthEvent as EventListener);
+    };
+  }, []);
+
+  // Pass token as a parameter so the query refires when token changes
+  const { data, isLoading, error } = useMeQuery(token, { skip: !token });
 
   const user = data?.user || null;
-  const isAuthenticated = Boolean(user && !error);
+  const isAuthenticated = Boolean(token && user && !error);
 
   const hasRole = (role: UserRole | UserRole[]): boolean => {
     if (!user) return false;

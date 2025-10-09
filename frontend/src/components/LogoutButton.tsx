@@ -9,6 +9,8 @@ export default function LogoutButton() {
       onClick={() => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        // Notify app about token change so UserProvider reacts immediately
+        window.dispatchEvent(new Event("auth:token-changed"));
         navigate("/login", { replace: true });
       }}
     >

@@ -11,7 +11,8 @@ export const authApi = api.injectEndpoints({
     register: build.mutation<AuthResponse, { email: string; password: string; name?: string }>({
       query: (body) => ({ url: "/auth/register", method: "POST", body }),
     }),
-    me: build.query<{ user: User }, void>({
+    // Accept a token (or undefined) as the arg so cache key changes when token changes
+    me: build.query<{ user: User }, string | void>({
       query: () => ({ url: "/auth/me" }),
     }),
     getAllUsers: build.query<{ users: User[] }, void>({
