@@ -4,14 +4,14 @@ import Navigation from "@/components/Navigation";
 
 const Users = () => {
   return (
-    <div className="p-6">
+    <main className="p-6" role="main" aria-labelledby="users-title">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold">User Management</h1>
+        <h1 id="users-title" className="text-2xl font-bold">User Management</h1>
         <LogoutButton />
       </div>
       <Navigation />
       <UserManagement />
-    </div>
+    </main>
   );
 };
 

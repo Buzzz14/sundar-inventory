@@ -11,4 +11,19 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    sourcemap: false,
+    cssCodeSplit: true,
+    target: "es2019",
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom", "react-router-dom"],
+          radix: ["@radix-ui/react-dialog", "@radix-ui/react-slot"],
+          redux: ["@reduxjs/toolkit", "react-redux"],
+          ui: ["lucide-react", "class-variance-authority"],
+        },
+      },
+    },
+  },
 });

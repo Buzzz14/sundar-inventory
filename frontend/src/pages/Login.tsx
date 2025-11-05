@@ -29,17 +29,17 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
-      <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4">
+      <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4" aria-describedby={error ? "login-error" : undefined}>
         <h1 className="text-2xl font-semibold">Sign in</h1>
         <div className="space-y-2">
-          <label className="text-sm">Email</label>
-          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <label className="text-sm" htmlFor="login-email">Email</label>
+          <Input id="login-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
         </div>
         <div className="space-y-2">
-          <label className="text-sm">Password</label>
-          <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <label className="text-sm" htmlFor="login-password">Password</label>
+          <Input id="login-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required aria-invalid={!!error || undefined} />
         </div>
-        {error && <div className="text-sm text-red-600">{error}</div>}
+        {error && <div id="login-error" className="text-sm text-red-600" role="alert">{error}</div>}
         <Button type="submit" disabled={isLoading} className="w-full">
           {isLoading ? "Signing in..." : "Sign in"}
         </Button>

@@ -30,30 +30,66 @@ export default function Register() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
-      <form onSubmit={onSubmit} className="w-full max-w-sm space-y-4">
+      <form
+        onSubmit={onSubmit}
+        className="w-full max-w-sm space-y-4"
+        aria-describedby={error ? "register-error" : undefined}
+      >
         <h1 className="text-2xl font-semibold">Create account</h1>
         <div className="space-y-2">
-          <label className="text-sm">Name</label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} />
+          <label className="text-sm" htmlFor="register-name">
+            Name
+          </label>
+          <Input
+            id="register-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
         </div>
         <div className="space-y-2">
-          <label className="text-sm">Email</label>
-          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <label className="text-sm" htmlFor="register-email">
+            Email
+          </label>
+          <Input
+            id="register-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
         <div className="space-y-2">
-          <label className="text-sm">Password</label>
-          <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          <label className="text-sm" htmlFor="register-password">
+            Password
+          </label>
+          <Input
+            id="register-password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            aria-invalid={!!error || undefined}
+          />
         </div>
-        {error && <div className="text-sm text-red-600">{error}</div>}
+        {error && (
+          <div
+            id="register-error"
+            className="text-sm text-red-600"
+            role="alert"
+          >
+            {error}
+          </div>
+        )}
         <Button type="submit" disabled={isLoading} className="w-full">
           {isLoading ? "Creating..." : "Register"}
         </Button>
         <div className="text-sm text-center">
-          Already have an account? <Link to="/login" className="underline">Sign in</Link>
+          Already have an account?{" "}
+          <Link to="/login" className="underline">
+            Sign in
+          </Link>
         </div>
       </form>
     </div>
   );
 }
-
-

@@ -7,7 +7,7 @@ import {
   useUpdateItemMutation,
   useGetItemsQuery,
 } from "@/redux/features/items/itemsApi";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useGetCategoriesQuery } from "@/redux/features/categories/categoriesApi";
 import { useAddCategoryMutation } from "@/redux/features/categories/categoriesApi";
 import { Button } from "@/components/ui/button";
@@ -170,13 +170,14 @@ const ItemDialog: React.FC<ItemDialogProps> = ({
         }}
       >
         <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editItemSlug ? "Update Item" : "Add Item"}</DialogTitle>
+          </DialogHeader>
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="p-4 flex flex-col gap-2 w-[400px]"
           >
-            <h2 className="text-lg font-semibold">
-              {editItemSlug ? "Update Item" : "Add Item"}
-            </h2>
+            
 
             <label htmlFor="name" className="text-sm font-medium">
               Name
